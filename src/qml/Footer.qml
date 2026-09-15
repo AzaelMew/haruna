@@ -135,28 +135,6 @@ Item {
                 }
 
                 ToolButton {
-                    id: playPauseButton
-
-                    display: AbstractButton.IconOnly
-                    icon.name: root.m_mpv.pause ? "media-playback-start" : "media-playback-pause"
-                    icon.width: root.buttonSize
-                    icon.height: root.buttonSize
-                    focusPolicy: Qt.NoFocus
-                    enabled: root.m_mpv.duration !== 0
-
-                    onClicked: HarunaApp.actions.playPauseAction.trigger()
-
-                    ToolTip {
-                        id: playPauseButtonToolTip
-
-                        text: root.m_mpv.pause ? KI18n.i18nc("@info:tooltip", "Start playback") : KI18n.i18nc("@info:tooltip", "Pause playback")
-                        delay: HarunaApp.isAltKeyPressed ? 0 : Kirigami.Units.toolTipDelay
-                        visible: playPauseButton.hovered
-                                 && (GeneralSettings.showExplanatoryToolTips || HarunaApp.isAltKeyPressed)
-                    }
-                }
-
-                ToolButton {
                     id: skipBackwardButton
 
                     icon.name: "media-seek-backward"
@@ -210,14 +188,55 @@ Item {
                     icon.height: root.buttonSize
                     display: AbstractButton.IconOnly
                     focusPolicy: Qt.NoFocus
-                    enabled: root.playlistsManager.activePlaylist.itemCount > 1
 
-                    onClicked: HarunaApp.actions.playPreviousAction.trigger()
+                    enabled: root.m_mpv.chaptersModel.rowCount > 0
+                            || root.playlistsManager.activePlaylist.itemCount > 1
+
+                    onClicked: {
+                        if (root.m_mpv.chaptersModel.rowCount === 0) {
+                            HarunaApp.actions.playPreviousAction.trigger()
+                            return
+                        }
+
+                        const currentChapter = root.m_mpv.getProperty(MpvProperties.Chapter)
+
+                        if (currentChapter <= 0) {
+                            HarunaApp.actions.playPreviousAction.trigger()
+                        } else {
+                            HarunaApp.actions.seekPreviousChapterAction.trigger()
+                        }
+                    }
 
                     ToolTip {
-                        text: KI18n.i18nc("@info:tooltip", "Play previous file")
+                        text: KI18n.i18nc(
+                            "@info:tooltip",
+                            "Previous chapter, or previous file"
+                        )
                         delay: HarunaApp.isAltKeyPressed ? 0 : Kirigami.Units.toolTipDelay
                         visible: playPreviousFile.hovered
+                                && (GeneralSettings.showExplanatoryToolTips
+                                    || HarunaApp.isAltKeyPressed)
+                    }
+                }
+
+                ToolButton {
+                    id: playPauseButton
+
+                    display: AbstractButton.IconOnly
+                    icon.name: root.m_mpv.pause ? "media-playback-start" : "media-playback-pause"
+                    icon.width: root.buttonSize
+                    icon.height: root.buttonSize
+                    focusPolicy: Qt.NoFocus
+                    enabled: root.m_mpv.duration !== 0
+
+                    onClicked: HarunaApp.actions.playPauseAction.trigger()
+
+                    ToolTip {
+                        id: playPauseButtonToolTip
+
+                        text: root.m_mpv.pause ? KI18n.i18nc("@info:tooltip", "Start playback") : KI18n.i18nc("@info:tooltip", "Pause playback")
+                        delay: HarunaApp.isAltKeyPressed ? 0 : Kirigami.Units.toolTipDelay
+                        visible: playPauseButton.hovered
                                  && (GeneralSettings.showExplanatoryToolTips || HarunaApp.isAltKeyPressed)
                     }
                 }
@@ -230,15 +249,26 @@ Item {
                     icon.height: root.buttonSize
                     display: AbstractButton.IconOnly
                     focusPolicy: Qt.NoFocus
-                    enabled: root.playlistsManager.activePlaylist.itemCount > 1
 
-                    onClicked: HarunaApp.actions.playNextAction.trigger()
+                    enabled: root.m_mpv.chaptersModel.rowCount > 0
+                            || root.playlistsManager.activePlaylist.itemCount > 1
 
+                    onClicked: {
+                        if (root.m_mpv.chaptersModel.rowCount === 0) {
+                            HarunaApp.actions.playNextAction.trigger()
+                        } else {
+                            HarunaApp.actions.seekNextChapterAction.trigger()
+                        }
+                    }
                     ToolTip {
-                        text: KI18n.i18nc("@info:tooltip", "Play next file")
+                        text: KI18n.i18nc(
+                            "@info:tooltip",
+                            "Next chapter, or next file"
+                        )
                         delay: HarunaApp.isAltKeyPressed ? 0 : Kirigami.Units.toolTipDelay
                         visible: playNextFile.hovered
-                                 && (GeneralSettings.showExplanatoryToolTips || HarunaApp.isAltKeyPressed)
+                                && (GeneralSettings.showExplanatoryToolTips
+                                    || HarunaApp.isAltKeyPressed)
                     }
                 }
 
