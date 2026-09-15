@@ -157,6 +157,52 @@ Item {
                 }
 
                 ToolButton {
+                    id: skipBackwardButton
+
+                    icon.name: "media-seek-backward"
+                    icon.width: root.buttonSize
+                    icon.height: root.buttonSize
+                    display: AbstractButton.IconOnly
+                    focusPolicy: Qt.NoFocus
+                    enabled: root.m_mpv.duration !== 0
+
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onClicked: function(mouse) {
+                            if (mouse.modifiers & Qt.ShiftModifier) {
+                                root.m_mpv.command([
+                                    "seek",
+                                    -PlaybackSettings.seekBigStep,
+                                    "exact"
+                                ])
+                            } else if (mouse.modifiers & Qt.ControlModifier) {
+                                root.m_mpv.command([
+                                    "seek",
+                                    -PlaybackSettings.seekMediumStep,
+                                    "exact"
+                                ])
+                            } else {
+                                root.m_mpv.command([
+                                    "seek",
+                                    -PlaybackSettings.seekSmallStep,
+                                    "exact"
+                                ])
+                            }
+                        }
+                    }
+
+                    ToolTip {
+                        text:
+                            "Click: -" + PlaybackSettings.seekSmallStep + "s\n" +
+                            "Ctrl-click: -" + PlaybackSettings.seekMediumStep + "s\n" +
+                            "Shift-click: -" + PlaybackSettings.seekBigStep + "s"
+
+                        visible: skipBackwardButton.hovered
+                    }
+                }
+
+                ToolButton {
                     id: playPreviousFile
 
                     icon.name: footer.LayoutMirroring.enabled ? "media-skip-forward" : "media-skip-backward"
@@ -193,6 +239,39 @@ Item {
                         delay: HarunaApp.isAltKeyPressed ? 0 : Kirigami.Units.toolTipDelay
                         visible: playNextFile.hovered
                                  && (GeneralSettings.showExplanatoryToolTips || HarunaApp.isAltKeyPressed)
+                    }
+                }
+
+                ToolButton {
+                    id: skipForwardButton
+
+                    icon.name: "media-seek-forward"
+                    icon.width: root.buttonSize
+                    icon.height: root.buttonSize
+                    display: AbstractButton.IconOnly
+                    focusPolicy: Qt.NoFocus
+                    enabled: root.m_mpv.duration !== 0
+
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onClicked: function(mouse) {
+                            if (mouse.modifiers & Qt.ShiftModifier) {
+                                root.m_mpv.command(["seek", PlaybackSettings.seekBigStep, "exact"])
+                            } else if (mouse.modifiers & Qt.ControlModifier) {
+                                root.m_mpv.command(["seek", PlaybackSettings.seekMediumStep, "exact"])
+                            } else {
+                                root.m_mpv.command(["seek", PlaybackSettings.seekSmallStep, "exact"])
+                            }
+                        }
+                    }
+
+                    ToolTip {
+                        text: "Click: +" + PlaybackSettings.seekSmallStep + "s\n"
+                            + "Ctrl-click: +" + PlaybackSettings.seekMediumStep + "s\n"
+                            + "Shift-click: +" + PlaybackSettings.seekBigStep + "s"
+
+                        visible: skipForwardButton.hovered
                     }
                 }
 
